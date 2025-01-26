@@ -1,0 +1,18 @@
+https://web.archive.org/web/20210214004842/http://www.reconnsworld.com/ir_ultrasonic_basicirdetectemit.html
+
+IR pair electrokit, https://www.electrokit.com/ir-sandare-/-mottagare-par
+Yellow = diode
+Red = Phototransistor
+LED 
+	220 Ohm
+Photoresistor
+1 cm:	10 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, low when light is on, high without light
+15 cm:	67 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, high/2 when light is on, high without light
+
+
+Dioder från Electrokit, LTR-4206E, TSAL4400
+
+LED 33 Ohm, test 15R K90 with parallell diodes? Over track
+Under track
+8 cm: 67 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, high*7/8 when light is on, high without light
+8 cm: 200 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, low when light is on, high without light
