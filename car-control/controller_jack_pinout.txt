@@ -1,0 +1,10 @@
+orange signal = pin furthest from connector
+lowest resistance to signal at full throttle = closest to connector
+only connected to signal at 0 throttle = mid pin on the side
+
+Max ~70 Ohm
+
+Connect by:
+signal = pin 2 = soldered first = connect to pin 18, with a 100 Ohm pull-down to GND
+lowest resistance = pin 1 = soldered mid = connected to 3.3V
+unconnected
