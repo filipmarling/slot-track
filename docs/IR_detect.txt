@@ -12,7 +12,8 @@ Photoresistor
 
 Dioder från Electrokit, LTR-4206E, TSAL4400
 
-LED 33 Ohm, test 15R K90 with parallell diodes? Over track
+LED Over track, 33 Ohm works, test 15R K90 with parallell diodes? Bad! (3.3V-1.5V)/100mA = 18 Ohm, 15 Ohm should work well. Test was successfull
 Under track
 8 cm: 67 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, high*7/8 when light is on, high without light
 8 cm: 200 kOhm from 3.3V to anode (long leg), cathode to 0V, output read at anode, low when light is on, high without light
+560 kOhm gives better range.
