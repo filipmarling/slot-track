@@ -1,6 +1,8 @@
 
 #include <LedControl.h> // Include the LedControl library
 
+// Debug verbosity level (0: none, 1: basic, 2: detailed)
+const int VERBOSITY = 1;
 
 // Define the CarControl class
 class CarControl {
@@ -54,8 +56,25 @@ void CarControl::setControllerMode(bool enabled) {
 // Update the car control logic
 void CarControl::update() {
     if (controllerMode) {
-        speedA = constrain(map(analogRead(controllerA), 500, 900, 0, 255), 0, 255);
-        speedB = constrain(map(analogRead(controllerB), 500, 900, 0, 255), 0, 255);
+        int rawA = analogRead(controllerA);
+        int rawB = analogRead(controllerB);
+        
+        if (VERBOSITY >= 2) {
+            // Print raw analog readings
+            Serial.print("Raw A: ");
+            Serial.print(rawA);
+            Serial.print(" | Raw B: ");
+            Serial.print(rawB);
+            
+            // Print mapping process
+            Serial.print(" | Mapped A: ");
+            Serial.print(map(rawA, 500, 900, 0, 255));
+            Serial.print(" | Mapped B: ");
+            Serial.print(map(rawB, 500, 900, 0, 255));
+        }
+        
+        speedA = constrain(map(rawA, 500, 900, 0, 255), 0, 255);
+        speedB = constrain(map(rawB, 500, 900, 0, 255), 0, 255);
     }
     digitalWrite(in1A, forwardA ? HIGH : LOW);
     digitalWrite(in2A, forwardA ? LOW : HIGH);
@@ -64,6 +83,19 @@ void CarControl::update() {
     digitalWrite(in1B, forwardB ? LOW : HIGH);
     digitalWrite(in2B, forwardB ? HIGH : LOW);
     analogWrite(pwmB, speedB);
+
+    if (VERBOSITY >= 2) {
+        // Print final car control information
+        Serial.print(" | Final A: ");
+        Serial.print(speedA);
+        Serial.print(" (");
+        Serial.print(forwardA ? "Forward" : "Reverse");
+        Serial.print(") | Final B: ");
+        Serial.print(speedB);
+        Serial.print(" (");
+        Serial.print(forwardB ? "Forward" : "Reverse");
+        Serial.println(")");
+    }
 }
 
 // Define the Display class
@@ -134,10 +166,10 @@ void Timing::update() {
     unsigned long currentMillis = millis();
     int sensorValueA = analogRead(sensorPinA);
     int sensorValueB = analogRead(sensorPinB);
-    // Serial.println(sensorValueA);
+
+    
     // Car A timing logic
     if (sensorValueA > threshold && !triggeredA) {
-        // Serial.println("Trigger A");
         triggeredA = true;
         hysteresisStartA = currentMillis;
         unsigned long timeSinceLastTrigger = currentMillis - lastTriggerA;
@@ -156,6 +188,20 @@ void Timing::update() {
         elapsedTimeB = timeSinceLastTrigger / 1000.0;
     } else if (sensorValueB <= threshold && currentMillis - hysteresisStartB >= 500) {
         triggeredB = false;
+    }
+        
+    if (VERBOSITY >= 1) {
+        // Print sensor values and trigger status
+        Serial.print("Sensor A: ");
+        Serial.print(sensorValueA);
+        Serial.print(" (");
+        Serial.print(triggeredA ? "TRIGGERED" : "not triggered");
+        Serial.println(")");
+        // Serial.print(" | Sensor B: ");
+        // Serial.print(sensorValueB);
+        // Serial.print(" (");
+        // Serial.print(triggeredB ? "TRIGGERED" : "not triggered");
+        // Serial.println(")");
     }
 }
 
@@ -178,10 +224,15 @@ float Timing::getTime(int car) {
 }
 
 // CarControl carControl(3, 4, 0, 1, 6, 7, 18, 19);
-CarControl carControl(3, 4, 0, 1, 6, 7, 18, 18);
+CarControl carControl(3, 4, 0, 1, 6, 7, 18, 19);
 Display display(12, 11, 10);
-Timing timing(14, 15, 820);
+Timing timing(14, 15, 500);
 int i = 0;
+
+// LED blink variables
+unsigned long previousLedMillis = 0;
+const long ledInterval = 500;  // interval at which to blink (milliseconds)
+bool ledState = false;
 
 void setup() {
     Serial.begin(9600);
@@ -189,10 +240,18 @@ void setup() {
         ;  // wait for serial port to connect. Needed for native USB port only
     }
     carControl.setControllerMode(true); // Enable controller mode
+    pinMode(LED_BUILTIN, OUTPUT); // Initialize the built-in LED pin
     Serial.println("Setup done!");
 }
 
 void loop() {
+    // Non-blocking LED blink
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousLedMillis >= ledInterval) {
+        previousLedMillis = currentMillis;
+        ledState = !ledState;  // Toggle the LED state
+        digitalWrite(LED_BUILTIN, ledState);
+    }
 
     carControl.update(); // Update car control
     timing.update(); // Update timing
@@ -208,6 +267,6 @@ void loop() {
         // Serial.println("Trigger B");
         display.displayTime(timeB, 1); // Display time for car B
     }
-    delay(10);
+    delay(100);
 }
 
