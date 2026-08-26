@@ -226,7 +226,7 @@ float Timing::getTime(int car) {
 // CarControl carControl(3, 4, 0, 1, 6, 7, 18, 19);
 CarControl carControl(3, 4, 0, 1, 6, 7, 18, 19);
 Display display(12, 11, 10);
-Timing timing(14, 15, 500);
+Timing timing(14, 15, 800);
 int i = 0;
 
 // LED blink variables
@@ -236,8 +236,10 @@ bool ledState = false;
 
 void setup() {
     Serial.begin(9600);
-    while (!Serial) {
-        ;  // wait for serial port to connect. Needed for native USB port only
+    // Wait up to 2.5 seconds for Serial Monitor to connect, then proceed anyway
+    unsigned long startWait = millis();
+    while (!Serial && (millis() - startWait < 2500)) {
+        ; // Non-blocking startup timeout
     }
     carControl.setControllerMode(true); // Enable controller mode
     pinMode(LED_BUILTIN, OUTPUT); // Initialize the built-in LED pin
@@ -259,13 +261,13 @@ void loop() {
     if (timing.isNewTrigger(0)) {
         float timeA = timing.getTime(0);
         // Serial.println("Trigger A");
-        display.displayTime(timeA, 0); // Display time for car A
+        display.displayTime(timeA, 1); // Display time for car A
     }
 
     if (timing.isNewTrigger(1)) {
         float timeB = timing.getTime(1);
         // Serial.println("Trigger B");
-        display.displayTime(timeB, 1); // Display time for car B
+        display.displayTime(timeB, 0); // Display time for car B
     }
     delay(100);
 }
